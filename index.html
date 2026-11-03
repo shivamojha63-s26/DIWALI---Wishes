@@ -1,0 +1,291 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Happy Diwali 🪔</title>
+
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: radial-gradient(circle, #5c1600, #160000 75%);
+    font-family: Georgia, serif;
+    color: white;
+}
+
+.container {
+    text-align: center;
+    z-index: 2;
+    padding: 20px;
+}
+
+h1 {
+    font-size: clamp(38px, 8vw, 75px);
+    color: #ffd700;
+    text-shadow: 0 0 10px orange, 0 0 30px gold;
+    animation: glow 2s infinite alternate;
+}
+
+.message {
+    font-size: 20px;
+    margin-top: 20px;
+    line-height: 1.7;
+    animation: fadeIn 3s ease-in-out;
+}
+
+.diyas {
+    display: flex;
+    justify-content: center;
+    gap: 35px;
+    margin-top: 40px;
+}
+
+.diya {
+    font-size: 65px;
+    animation: float 2s infinite ease-in-out;
+    filter: drop-shadow(0 0 15px orange);
+}
+
+.diya:nth-child(2) {
+    animation-delay: .5s;
+}
+
+.diya:nth-child(3) {
+    animation-delay: 1s;
+}
+
+button {
+    margin-top: 35px;
+    padding: 13px 30px;
+    background: linear-gradient(45deg, orange, gold);
+    border: none;
+    border-radius: 30px;
+    font-size: 17px;
+    font-weight: bold;
+    cursor: pointer;
+    color: #541000;
+    box-shadow: 0 0 20px orange;
+}
+
+button:hover {
+    transform: scale(1.1);
+}
+
+.star {
+    position: absolute;
+    color: gold;
+    animation: fall linear infinite;
+    top: -20px;
+    pointer-events: none;
+}
+
+@keyframes glow {
+    from { text-shadow: 0 0 10px orange; }
+    to { text-shadow: 0 0 40px gold, 0 0 70px orange; }
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-18px); }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fall {
+    to { transform: translateY(110vh) rotate(360deg); }
+}
+
+#fireworks {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 1;
+}
+</style>
+</head>
+
+<body>
+
+<canvas id="fireworks"></canvas>
+
+<div class="container">
+    <h1>✨ Happy Diwali ✨</h1>
+
+    <div class="message">
+        May this Diwali bring endless happiness,<br>
+        prosperity, love and success into your life.<br>
+        <strong>Wishing You and Your Family a Very Happy Diwali!</strong>
+    </div>
+
+    <div class="diyas">
+        <div class="diya">🪔</div>
+        <div class="diya">🪔</div>
+        <div class="diya">🪔</div>
+    </div>
+
+    <button onclick="celebrate()">
+        🎆 Celebrate Diwali
+    </button>
+</div>
+
+<script>
+// Falling golden stars
+for (let i = 0; i < 45; i++) {
+    let star = document.createElement("div");
+    star.className = "star";
+    star.innerHTML = "✦";
+
+    star.style.left = Math.random() * 100 + "vw";
+    star.style.animationDuration = (3 + Math.random() * 5) + "s";
+    star.style.animationDelay = Math.random() * 5 + "s";
+    star.style.fontSize = (10 + Math.random() * 15) + "px";
+
+    document.body.appendChild(star);
+}
+
+
+const canvas = document.getElementById("fireworks");
+const ctx = canvas.getContext("2d");
+
+function resize() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+}
+
+resize();
+window.addEventListener("resize", resize);
+
+let rockets = [];
+let particles = [];
+
+const colors = [
+    "#FFD700",
+    "#FF4500",
+    "#00FFFF",
+    "#FF1493",
+    "#ADFF2F",
+    "#FFFFFF"
+];
+
+// Rocket launch
+function launchRocket() {
+    rockets.push({
+        x: Math.random() * canvas.width,
+        y: canvas.height,
+        targetY: canvas.height * (0.15 + Math.random() * 0.4),
+        speed: 5 + Math.random() * 3,
+        color: colors[Math.floor(Math.random() * colors.length)],
+        trail: []
+    });
+}
+
+// Firework explosion
+function explode(x, y, color) {
+    const count = 160;
+
+    for (let i = 0; i < count; i++) {
+        const angle = Math.random() * Math.PI * 2;
+        const speed = Math.random() * 6 + 1;
+
+        particles.push({
+            x: x,
+            y: y,
+            vx: Math.cos(angle) * speed,
+            vy: Math.sin(angle) * speed,
+            alpha: 1,
+            size: Math.random() * 2.5 + 1,
+            color: Math.random() > 0.3
+                ? color
+                : colors[Math.floor(Math.random() * colors.length)]
+        });
+    }
+}
+
+// Animation
+function animate() {
+    ctx.fillStyle = "rgba(20, 0, 0, 0.18)";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // Rocket movement
+    rockets.forEach((r, index) => {
+        r.trail.push({x: r.x, y: r.y});
+
+        r.y -= r.speed;
+
+        ctx.fillStyle = r.color;
+        ctx.shadowBlur = 15;
+        ctx.shadowColor = r.color;
+
+        ctx.beginPath();
+        ctx.arc(r.x, r.y, 3, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Rocket reaches sky
+        if (r.y <= r.targetY) {
+            explode(r.x, r.y, r.color);
+            rockets.splice(index, 1);
+        }
+    });
+
+    // Spark particles
+    particles.forEach((p, index) => {
+        p.x += p.vx;
+        p.y += p.vy;
+
+        // Gravity and air resistance
+        p.vy += 0.045;
+        p.vx *= 0.985;
+        p.vy *= 0.985;
+
+        p.alpha -= 0.009;
+
+        ctx.globalAlpha = Math.max(0, p.alpha);
+        ctx.fillStyle = p.color;
+        ctx.shadowBlur = 12;
+        ctx.shadowColor = p.color;
+
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        ctx.fill();
+
+        if (p.alpha <= 0) {
+            particles.splice(index, 1);
+        }
+    });
+
+    ctx.globalAlpha = 1;
+    ctx.shadowBlur = 0;
+
+    requestAnimationFrame(animate);
+}
+
+animate();
+
+// Automatic rocket launches
+setInterval(() => {
+    launchRocket();
+}, 700);
+
+// Celebrate button
+function celebrate() {
+    for (let i = 0; i < 10; i++) {
+        setTimeout(launchRocket, i * 200);
+    }
+}
+</script>
+</body>
+</html>
